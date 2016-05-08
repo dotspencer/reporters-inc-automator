@@ -4,14 +4,12 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -23,8 +21,9 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import org.apache.poi.hwmf.*;
 import org.apache.poi.hwpf.HWPFDocument;
+import org.apache.poi.hwpf.usermodel.CharacterRun;
+import org.apache.poi.hwpf.usermodel.Paragraph;
 import org.apache.poi.hwpf.usermodel.Range;
 
 public class View implements ActionListener{
@@ -110,33 +109,37 @@ public class View implements ActionListener{
 			FileInputStream in = new FileInputStream(file);
 			doc = new HWPFDocument(in);
 			//in.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		Range range = doc.getRange();
-		range.replaceText("", false);
-//		while(sc.hasNextLine()){
-//			range.insertAfter(sc.nextLine());
-//		}
-		try {
+			
+			Range range = doc.getRange();
+			range.replaceText("", false);
+			
 			while(fr.ready()){
 				range.insertAfter((char)fr.read() + "");
 			}
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-		
-		// Saving the file
-		try {
+			
+			Range after = doc.getRange();
+			int numParagraphs = after.numParagraphs();
+			
+			for(int i = 0; i < numParagraphs; i++){
+				Paragraph paragraph = after.getParagraph(i);
+				
+				int charRuns = paragraph.numCharacterRuns();
+				for(int j = 0; j < charRuns; j++){
+					int size = 9;
+					CharacterRun run = paragraph.getCharacterRun(j);
+					run.setFontSize(size*2); // In half sizes.
+					//TODO run.
+				}
+				
+			}
+			
 			FileOutputStream out = new FileOutputStream(file);
 			doc.write(out);
 			//out.close();
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-		
 	}
 	
 	private String justName(File file){
