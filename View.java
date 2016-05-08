@@ -120,6 +120,8 @@ public class View implements ActionListener{
 			Range after = doc.getRange();
 			int numParagraphs = after.numParagraphs();
 			
+			boolean once = true;
+			
 			for(int i = 0; i < numParagraphs; i++){
 				Paragraph paragraph = after.getParagraph(i);
 				
@@ -128,9 +130,16 @@ public class View implements ActionListener{
 					int size = 9;
 					CharacterRun run = paragraph.getCharacterRun(j);
 					run.setFontSize(size*2); // In half sizes.
-					//TODO run.
+					run.setFtcAscii(4);
+					
+//					if(once){
+//						once = false;
+//						for(int k = 0; k < 100; k++){
+//							run.setFtcAscii(k);
+//							System.out.println(k + "\t" + run.getFontName());
+//						}
+//					}
 				}
-				
 			}
 			
 			FileOutputStream out = new FileOutputStream(file);
