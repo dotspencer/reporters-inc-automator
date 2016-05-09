@@ -10,6 +10,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -24,6 +25,8 @@ import org.apache.poi.hwpf.HWPFDocument;
 import org.apache.poi.hwpf.usermodel.CharacterRun;
 import org.apache.poi.hwpf.usermodel.Paragraph;
 import org.apache.poi.hwpf.usermodel.Range;
+
+import com.test.Main;
 
 public class View implements ActionListener{
 	
@@ -81,10 +84,12 @@ public class View implements ActionListener{
 	}
 	
 	private void createDoc(File file){
+		InputStream blank = Main.class.getResourceAsStream("/reportersInc/Blank.doc");
 		Path target = new File(file.getParent() + "/" + justName(file) + "/" + justName(file) + ".doc").toPath();
 		try {
-			Files.copy(new File("Blank.doc").toPath(), target, StandardCopyOption.REPLACE_EXISTING);
+			Files.copy(blank, target, StandardCopyOption.REPLACE_EXISTING);
 		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		writeDoc(file, new File(target.toString()));
@@ -116,6 +121,9 @@ public class View implements ActionListener{
 			Range after = doc.getRange();
 			int numParagraphs = after.numParagraphs();
 			
+			boolean once = true;
+			int font = 0; // Index of font
+			
 			for(int i = 0; i < numParagraphs; i++){
 				Paragraph paragraph = after.getParagraph(i);
 				
@@ -124,7 +132,25 @@ public class View implements ActionListener{
 					int size = 9;
 					CharacterRun run = paragraph.getCharacterRun(j);
 					run.setFontSize(size*2); // In half sizes.
-					run.setFtcAscii(4);
+					
+					// Searches for Courier New
+					if(once){
+						once = false;
+
+						for(int k = 0; k < 20; k++){
+							run.setFtcAscii(k);
+							System.out.println(k + "\t" + run.getFontName());
+							if(run.getFontName() == null){
+								break;
+							} else if (run.getFontName().equals("Courier New")){
+								font = k;
+								break;
+							}
+						}
+					}
+					
+					// Sets font type
+					run.setFtcAscii(font);
 				}
 			}
 			
