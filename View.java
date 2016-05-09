@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.Scanner;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -35,7 +34,6 @@ public class View implements ActionListener{
 		setUpFrame();
 		setUpPanel();
 		frame.setVisible(true);
-//		org.apache.poi.hw
 	}
 	
 	private void setUpFrame(){
@@ -74,6 +72,7 @@ public class View implements ActionListener{
 		} else {
 			createDoc(file); // Creates .doc file if folder was created
 			// writeDoc() method is called inside createDoc()
+			copyText(file);
 		}
 	}
 	
@@ -92,13 +91,10 @@ public class View implements ActionListener{
 	}
 	
 	private void writeDoc(File text, File file){
-		Scanner sc = null;
 		FileReader fr = null;
 		
 		try {
 			fr = new FileReader(text);
-			sc = new Scanner(text);
-			sc.useDelimiter("");
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -120,8 +116,6 @@ public class View implements ActionListener{
 			Range after = doc.getRange();
 			int numParagraphs = after.numParagraphs();
 			
-			boolean once = true;
-			
 			for(int i = 0; i < numParagraphs; i++){
 				Paragraph paragraph = after.getParagraph(i);
 				
@@ -131,14 +125,6 @@ public class View implements ActionListener{
 					CharacterRun run = paragraph.getCharacterRun(j);
 					run.setFontSize(size*2); // In half sizes.
 					run.setFtcAscii(4);
-					
-//					if(once){
-//						once = false;
-//						for(int k = 0; k < 100; k++){
-//							run.setFtcAscii(k);
-//							System.out.println(k + "\t" + run.getFontName());
-//						}
-//					}
 				}
 			}
 			
@@ -146,6 +132,15 @@ public class View implements ActionListener{
 			doc.write(out);
 			//out.close();
 			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void copyText(File file){
+		Path target = new File(file.getParent() + "/" + justName(file) + "/" + justName(file) + ".txt").toPath();
+		try {
+			Files.copy(file.toPath(), target);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
