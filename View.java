@@ -2,6 +2,7 @@ package reportersInc;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -15,11 +16,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 
 import org.apache.poi.hwpf.HWPFDocument;
 import org.apache.poi.hwpf.usermodel.CharacterRun;
@@ -32,6 +35,11 @@ public class View implements ActionListener{
 	
 	JFrame frame;
 	JPanel top;
+	JTextArea result;
+	
+	String folderMessage = "Folder created";
+	String blankDocMessage = "Blank .doc file created";
+	String textWrittenMessage = "Text written to .doc file";
 	
 	public View(){
 		setUpFrame();
@@ -41,11 +49,16 @@ public class View implements ActionListener{
 	
 	private void setUpFrame(){
 		frame = new JFrame();
-		frame.setTitle("Text to Doc");
+		frame.setTitle("ASCII Converter");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(new Dimension(300, 150));
 		frame.setMinimumSize(frame.getSize());
 		frame.setLayout(new BorderLayout());
+		
+		result = new JTextArea();
+		//result.setFont(new Font("Courier", 0, 14));
+		result.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		frame.add(result, BorderLayout.CENTER);
 	}
 	
 	private void setUpPanel(){
@@ -73,6 +86,7 @@ public class View implements ActionListener{
 		if(!createFolder(file)){
 			JOptionPane.showMessageDialog(null, "Folder already exists.");
 		} else {
+			
 			createDoc(file); // Creates .doc file if folder was created
 			// writeDoc() method is called inside createDoc()
 			copyText(file);
@@ -80,7 +94,12 @@ public class View implements ActionListener{
 	}
 	
 	private boolean createFolder(File file){
-		return new File(file.getParent() + "/" + justName(file)).mkdir();
+		File dir = new File(file.getParent() + "/" + justName(file));
+		boolean folderMade = dir.mkdir();
+		if(folderMade){
+			addResult(folderMessage);
+		}
+		return folderMade;
 	}
 	
 	private void createDoc(File file){
@@ -88,11 +107,12 @@ public class View implements ActionListener{
 		Path target = new File(file.getParent() + "/" + justName(file) + "/" + justName(file) + ".doc").toPath();
 		try {
 			Files.copy(blank, target, StandardCopyOption.REPLACE_EXISTING);
+			addResult(blankDocMessage);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		writeDoc(file, new File(target.toString()));
+		addResult(textWrittenMessage);
 	}
 	
 	private void writeDoc(File text, File file){
@@ -175,5 +195,9 @@ public class View implements ActionListener{
 	private String justName(File file){
 		String name = file.getName();
 		return name.substring(0, name.length() - 4);
+	}
+	
+	private void addResult(String message){
+		result.append(message + "\n");
 	}
 }
