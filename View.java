@@ -131,7 +131,7 @@ public class View implements ActionListener{
 				for(int j = 0; j < charRuns; j++){
 					int size = 9;
 					CharacterRun run = paragraph.getCharacterRun(j);
-					//run.setFontSize(size*2); // In half sizes.
+					run.setFontSize(size*2); // In half sizes.
 					
 					// Searches for Courier New
 					if(once){
