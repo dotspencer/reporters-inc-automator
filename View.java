@@ -29,7 +29,7 @@ import org.apache.poi.hwpf.usermodel.CharacterRun;
 import org.apache.poi.hwpf.usermodel.Paragraph;
 import org.apache.poi.hwpf.usermodel.Range;
 
-import com.test.Main;
+import reportersInc.View;
 
 public class View implements ActionListener{
 	
@@ -54,6 +54,7 @@ public class View implements ActionListener{
 		frame.setSize(new Dimension(300, 150));
 		frame.setMinimumSize(frame.getSize());
 		frame.setLayout(new BorderLayout());
+		frame.setLocationRelativeTo(null);
 		
 		result = new JTextArea();
 		//result.setFont(new Font("Courier", 0, 14));
@@ -80,16 +81,16 @@ public class View implements ActionListener{
 			return;
 		}
 		
-		File file = chooser.getSelectedFile();
-		System.out.println(file.toString());
+		File ascii = chooser.getSelectedFile();
+		System.out.println(ascii.toString());
 		
-		if(!createFolder(file)){
+		if(!createFolder(ascii)){
 			JOptionPane.showMessageDialog(null, "Folder already exists.");
 		} else {
 			
-			createDoc(file); // Creates .doc file if folder was created
+			createDoc(ascii); // Creates .doc file if folder was created
 			// writeDoc() method is called inside createDoc()
-			copyText(file);
+			copyText(ascii);
 		}
 	}
 	
@@ -102,24 +103,24 @@ public class View implements ActionListener{
 		return folderMade;
 	}
 	
-	private void createDoc(File file){
-		InputStream blank = Main.class.getResourceAsStream("/reportersInc/Blank.doc");
-		Path target = new File(file.getParent() + "/" + justName(file) + "/" + justName(file) + ".doc").toPath();
+	private void createDoc(File ascii){
+		InputStream blank = View.class.getResourceAsStream("/reportersInc/blank.doc");
+		Path target = new File(ascii.getParent() + "/" + justName(ascii) + "/" + justName(ascii) + ".doc").toPath();
 		try {
 			Files.copy(blank, target, StandardCopyOption.REPLACE_EXISTING);
 			addResult(blankDocMessage);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		writeDoc(file, new File(target.toString()));
+		writeDoc(ascii, new File(target.toString()));
 		addResult(textWrittenMessage);
 	}
 	
-	private void writeDoc(File text, File file){
+	private void writeDoc(File ascii, File dotDoc){
 		FileReader fr = null;
 		
 		try {
-			fr = new FileReader(text);
+			fr = new FileReader(ascii);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -127,11 +128,12 @@ public class View implements ActionListener{
 		HWPFDocument doc = null;
 		
 		try {
-			FileInputStream in = new FileInputStream(file);
+			FileInputStream in = new FileInputStream(dotDoc);
 			doc = new HWPFDocument(in);
 			//in.close();
 			
 			Range range = doc.getRange();
+			
 			range.replaceText("", false);
 			
 			while(fr.ready()){
@@ -143,40 +145,36 @@ public class View implements ActionListener{
 			
 			boolean once = true;
 			int font = 0; // Index of font
+//			
+//			for(int i = 0; i < numParagraphs; i++){
+//				Paragraph paragraph = after.getParagraph(i);
+//				
+//				int charRuns = paragraph.numCharacterRuns();
+//				for(int j = 0; j < charRuns; j++){
+//					int size = 9;
+//					CharacterRun run = paragraph.getCharacterRun(j);
+//					run.setFontSize(size*2); // In half sizes.
+//					
+//					// Searches for Courier New
+//					if(once){
+//						once = false;
+//
+//						for(int k = 0; k < 20; k++){
+//							run.setFtcAscii(k);
+//							System.out.println(k + "\t" + run.getFontName());
+//							
+//						}
+//					}
+//					
+//					// Sets font type
+//					run.setFtcAscii(3);
+//				}
+//			}
 			
-			for(int i = 0; i < numParagraphs; i++){
-				Paragraph paragraph = after.getParagraph(i);
-				
-				int charRuns = paragraph.numCharacterRuns();
-				for(int j = 0; j < charRuns; j++){
-					int size = 9;
-					CharacterRun run = paragraph.getCharacterRun(j);
-					run.setFontSize(size*2); // In half sizes.
-					
-					// Searches for Courier New
-					if(once){
-						once = false;
-
-						for(int k = 0; k < 20; k++){
-							run.setFtcAscii(k);
-							System.out.println(k + "\t" + run.getFontName());
-							if(run.getFontName() == null){
-								break;
-							} else if (run.getFontName().equals("Courier New")){
-								font = k;
-								break;
-							}
-						}
-					}
-					
-					// Sets font type
-					run.setFtcAscii(font);
-				}
-			}
-			
-			FileOutputStream out = new FileOutputStream(file);
+			FileOutputStream out = new FileOutputStream(dotDoc);
+			doc.createInformationProperties();
 			doc.write(out);
-			//out.close();
+			out.close();
 			
 		} catch (IOException e) {
 			e.printStackTrace();
