@@ -2,7 +2,6 @@ package reportersInc;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -25,8 +24,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
 import org.apache.poi.hwpf.HWPFDocument;
-import org.apache.poi.hwpf.usermodel.CharacterRun;
-import org.apache.poi.hwpf.usermodel.Paragraph;
 import org.apache.poi.hwpf.usermodel.Range;
 
 import reportersInc.View;
@@ -74,6 +71,8 @@ public class View implements ActionListener{
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		result.setText("");
+		
 		JFileChooser chooser = new JFileChooser();
 		int result = chooser.showOpenDialog(null);
 		
@@ -134,42 +133,9 @@ public class View implements ActionListener{
 			
 			Range range = doc.getRange();
 			
-			range.replaceText("", false);
-			
 			while(fr.ready()){
 				range.insertAfter((char)fr.read() + "");
 			}
-			
-			Range after = doc.getRange();
-			int numParagraphs = after.numParagraphs();
-			
-			boolean once = true;
-			int font = 0; // Index of font
-//			
-//			for(int i = 0; i < numParagraphs; i++){
-//				Paragraph paragraph = after.getParagraph(i);
-//				
-//				int charRuns = paragraph.numCharacterRuns();
-//				for(int j = 0; j < charRuns; j++){
-//					int size = 9;
-//					CharacterRun run = paragraph.getCharacterRun(j);
-//					run.setFontSize(size*2); // In half sizes.
-//					
-//					// Searches for Courier New
-//					if(once){
-//						once = false;
-//
-//						for(int k = 0; k < 20; k++){
-//							run.setFtcAscii(k);
-//							System.out.println(k + "\t" + run.getFontName());
-//							
-//						}
-//					}
-//					
-//					// Sets font type
-//					run.setFtcAscii(3);
-//				}
-//			}
 			
 			FileOutputStream out = new FileOutputStream(dotDoc);
 			doc.createInformationProperties();
