@@ -129,12 +129,23 @@ public class View implements ActionListener{
 		try {
 			FileInputStream in = new FileInputStream(dotDoc);
 			doc = new HWPFDocument(in);
+			doc.getDocProperties().setFHtmlDoc(true);
 			//in.close();
 			
 			Range range = doc.getRange();
 			
+			boolean once = true;
+			
 			while(fr.ready()){
-				range.insertAfter((char)fr.read() + "");
+				if(once){
+					once = false;
+					System.out.println(fr.read());
+				}
+				int current = fr.read();
+				if(current == 13){ // If character is a carriage return (13)
+					current = 11; // Use vertical tab (11)
+				}
+				range.insertAfter((char)current + "");
 			}
 			
 			FileOutputStream out = new FileOutputStream(dotDoc);
